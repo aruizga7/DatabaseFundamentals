@@ -4,12 +4,10 @@
 #
 import psycopg2
 
-
 def connect():
     """Connect to the PostgreSQL database.  Returns a database connection."""
     return psycopg2.connect("dbname=tournament")
-
-
+    
 def deleteMatches():
     """Remove all the match records from the database."""
     pg = connect();
@@ -17,7 +15,6 @@ def deleteMatches():
     c.execute("delete from matches")
     pg.commit();
     pg.close()
-
 
 def deletePlayers():
     """Remove all the player records from the database."""
@@ -104,14 +101,12 @@ def swissPairings():
         name2: the second player's name
     """
 
-
     standings = playerStandings()
     pairings = []
     for i in range(0, len(standings), 2):
         standing1 = standings[i]
         standing2 = standings[i+1]
         pairings.append([standing1[0], standing1[1], standing2[0], standing2[1]])
-
     return pairings
 
 

@@ -1,18 +1,24 @@
 -- Table definitions for the tournament project.
--- drop tables if already exist
-drop table if exists players, matches;
+--
+-- Put your SQL 'create table' statements in this file; also 'create view'
+-- statements if you choose to use it.
+--
+-- You can write comments in this file by starting them with two dashes, like
+-- these lines here.
 
+-- drop tables if already exist
+DROP TABLE IF EXISTS players, matches;
 -- create players table to keep track of players' stats
-create table players (
+CREATE TABLE players (
     id serial primary key,
-    name text,
-    wins int default 0,
-    matches int default 0
+    name text
 );
 
 -- create matches table to record match results
-create table matches (
+CREATE TABLE matches (
     id serial primary key,
     winner int references players(id),
-    loser int references players(id)
+    loser int references players(id),
+    foreign key (winner) references players(id),
+    foreign key (loser) references players(id) 
 );

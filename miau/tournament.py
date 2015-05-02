@@ -129,6 +129,6 @@ def swissPairings():
         standing2 = standings[i+1]
         pairings.append([standing1[0], standing1[1], standing2[0], standing2[1]])
 
-    return [tuple(list) for list in pairings]
+    return pairings
 
 

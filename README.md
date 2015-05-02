@@ -51,9 +51,5 @@ Contributors
 
   - Armand Ruiz ([armand_ruiz](https://twitter.com/armand_ruiz))
 
-To test the code, run:
 
-```
-python tournament_test.py
-```
 

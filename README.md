@@ -15,16 +15,13 @@ vagrant up
 vagrant ssh
 ```
 
-Create the database:
+Create the database and create the tables:
 ```
-vagrant=> CREATE DATABASE tournament;
-CREATE DATABASE
-vagrant=> \q
-```
-
-Create the tables in the database:
-```
-psql \i tournament.sql
+vagrant=> psql
+CREATE DATABASE tournament;
+\c tournament
+\i tournament.sql
+\q
 ```
 
 Run the test application to check that everything is fine:

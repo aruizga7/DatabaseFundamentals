@@ -17,7 +17,8 @@ vagrant ssh
 
 Create the database and create the tables:
 ```
-vagrant=> psql
+vagrant=>cd /vagrant/tournament
+psql
 CREATE DATABASE tournament;
 \c tournament
 \i tournament.sql

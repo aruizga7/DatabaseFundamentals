@@ -1,38 +1,43 @@
-#!/usr/bin/env python
+# !/usr/bin/env python
 # 
 # tournament.py -- implementation of a Swiss-system tournament
 #
 import psycopg2
 
+
 def connect():
     """Connect to the PostgreSQL database.  Returns a database connection."""
     return psycopg2.connect("dbname=tournament")
 
+    
 def deleteMatches():
     """Remove all the match records from the database."""
-    pg = connect();
-    c = pg.cursor();
+    pg = connect()
+    c = pg.cursor()
     c.execute("DELETE FROM matches")
-    pg.commit();
+    pg.commit()
     pg.close()
 
+    
 def deletePlayers():
     """Remove all the player records from the database."""
-    pg = connect();
-    c = pg.cursor();
+    pg = connect()
+    c = pg.cursor()
     c.execute("DELETE FROM players")
-    pg.commit();
+    pg.commit()
     pg.close()
 
+    
 def countPlayers():
     """Returns the number of players currently registered."""
-    pg = connect();
-    c = pg.cursor();
-    c.execute("SELECT COUNT(*) FROM players");
-    r = c.fetchone();
+    pg = connect()
+    c = pg.cursor()
+    c.execute("SELECT COUNT(*) FROM players")
+    r = c.fetchone()
     pg.close()
-    return r[0];
+    return r[0]
 
+    
 def registerPlayer(name):
     """Adds a player to the tournament database. 
     The database assigns a unique serial id number for the player.  (This
@@ -43,14 +48,15 @@ def registerPlayer(name):
     """
     pg = connect()
     c = pg.cursor()
-    c.execute("INSERT INTO players(name) VALUES (%s)", (name,));
+    c.execute("INSERT INTO players(name) VALUES (%s)", (name,))
     pg.commit()
     pg.close()
 
+    
 def playerStandings():
     """Returns a list of the players and their win records, sorted by wins.
-    The first entry in the list should be the player in first place, or a player
-    tied for first place if there is currently a tie.
+    The first entry in the list should be the player in first place,
+    or a player tied for first place if there is currently a tie.
     Returns:
       A list of tuples, each of which contains (id, name, wins, matches):
         id: the player's unique id (assigned by the database)
@@ -61,12 +67,12 @@ def playerStandings():
     values = []
     connection = connect()
     cursor = connection.cursor()
-    cursor.execute("SELECT player_id, name, matches_won, matches_played FROM standings ORDER BY matches_won DESC");  
+    cursor.execute("SELECT * FROM standings")
     values = cursor.fetchall()    
     connection.close()
-    
     return values
 
+    
 def reportMatch(winner, loser):
     """Records the outcome of a single match between two players.
 
@@ -84,6 +90,7 @@ def reportMatch(winner, loser):
     pg.commit()   
     pg.close()
     
+    
 def swissPairings():
     """Returns a list of pairs of players for the next round of a match.
   
@@ -91,7 +98,6 @@ def swissPairings():
     appears exactly once in the pairings.  Each player is paired with another
     player with an equal or nearly-equal win record, that is, a player adjacent
     to him or her in the standings.
-  
     Returns:
       A list of tuples, each of which contains (id1, name1, id2, name2)
         id1: the first player's unique id
@@ -102,18 +108,14 @@ def swissPairings():
 
     connection = connect()
     cursor = connection.cursor()
-
     cursor.execute("SELECT player_id, name, matches_won FROM standings")
     players = cursor.fetchall()
     connection.close()
-
     pairings = []
-    
-    #Iterate over each of the players by 2, and pair them
-    for i in range(0,len(players) - 1,2):
-        pairing = (players[i][0], players[i][1], players[i+1][0],players[i+1][1])
+    # Iterate over each of the players by 2, and pair them
+    for i in range(0, len(players) - 1, 2):
+        pairing = (players[i][0], players[i][1],
+                   players[i+1][0], players[i+1][1])
         pairings.append(pairing)
 
     return [tuple(list) for list in pairings]
-
-

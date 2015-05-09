@@ -4,11 +4,9 @@
 #
 import psycopg2
 
-
 def connect():
     """Connect to the PostgreSQL database.  Returns a database connection."""
     return psycopg2.connect("dbname=tournament")
-
 
 def deleteMatches():
     """Remove all the match records from the database."""
@@ -17,7 +15,6 @@ def deleteMatches():
     c.execute("DELETE FROM matches")
     pg.commit();
     pg.close()
-
 
 def deletePlayers():
     """Remove all the player records from the database."""
@@ -37,8 +34,7 @@ def countPlayers():
     return r[0];
 
 def registerPlayer(name):
-    """Adds a player to the tournament database.
-  
+    """Adds a player to the tournament database. 
     The database assigns a unique serial id number for the player.  (This
     should be handled by your SQL database schema, not in your Python code.)
   
@@ -51,9 +47,7 @@ def registerPlayer(name):
     pg.commit()
     pg.close()
 
-
 def playerStandings():
-
     """Returns a list of the players and their win records, sorted by wins.
     The first entry in the list should be the player in first place, or a player
     tied for first place if there is currently a tie.
@@ -64,27 +58,14 @@ def playerStandings():
         wins: the number of matches the player has won
         matches: the number of matches the player has played
     """
-    base_query = """
-    select players.id, name, count(matches.id) as {win_or_loss}
-        from players left join matches
-            on players.id = {field}
-        group by players.id
-        order by {win_or_loss} desc
-    """
-    query_wins = base_query.format(field='winner', win_or_loss='wins')
-    query_losses = base_query.format(field='loser', win_or_loss='losses')
-    query_join = """
-    select winners.id, winners.name, wins, wins+losses as matches
-        from ({query_wins}) as winners left join ({query_losses}) as losers
-            on winners.id = losers.id;
-    """.format(query_wins=query_wins, query_losses=query_losses)
-    db = connect()
-    c = db.cursor()
-    c.execute(query_join + ';')
-    results = c.fetchall()
-
-    db.close()
-    return results
+    values = []
+    connection = connect()
+    cursor = connection.cursor()
+    cursor.execute("SELECT player_id, name, matches_won, matches_played FROM standings ORDER BY matches_won DESC");  
+    values = cursor.fetchall()    
+    connection.close()
+    
+    return values
 
 def reportMatch(winner, loser):
     """Records the outcome of a single match between two players.
@@ -96,15 +77,13 @@ def reportMatch(winner, loser):
     pg = connect()
     c = pg.cursor() 
     add_query = """
-    INSERT INTO matches (winner, loser)
+    INSERT INTO matches (winner_id, loser_id)
     VALUES ({winner}, {loser})
     """.format(winner=winner, loser=loser)
     c.execute(add_query)
     pg.commit()   
     pg.close()
     
- 
- 
 def swissPairings():
     """Returns a list of pairs of players for the next round of a match.
   
@@ -121,13 +100,19 @@ def swissPairings():
         name2: the second player's name
     """
 
+    connection = connect()
+    cursor = connection.cursor()
 
-    standings = playerStandings()
+    cursor.execute("SELECT player_id, name, matches_won FROM standings")
+    players = cursor.fetchall()
+    connection.close()
+
     pairings = []
-    for i in range(0, len(standings), 2):
-        standing1 = standings[i]
-        standing2 = standings[i+1]
-        pairings.append([standing1[0], standing1[1], standing2[0], standing2[1]])
+    
+    #Iterate over each of the players by 2, and pair them
+    for i in range(0,len(players) - 1,2):
+        pairing = (players[i][0], players[i][1], players[i+1][0],players[i+1][1])
+        pairings.append(pairing)
 
     return [tuple(list) for list in pairings]
 

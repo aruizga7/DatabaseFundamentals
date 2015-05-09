@@ -6,17 +6,23 @@
 -- You can write comments in this file by starting them with two dashes, like
 -- these lines here.
 
--- drop tables if already exist
-DROP TABLE IF EXISTS players, matches;
--- create players table to keep track of players' stats
-CREATE TABLE players (
-    id serial primary key,
-    name text
-);
+DROP TABLE IF EXISTS players CASCADE;
+DROP TABLE IF EXISTS matches CASCADE;
+DROP VIEW IF EXISTS standings CASCADE;
 
--- create matches table to record match results
-CREATE TABLE matches (
-    id serial primary key,
-    winner int references players(id),
-    loser int references players(id)
-);
+CREATE TABLE players(
+	id SERIAL PRIMARY KEY,
+	name TEXT);
+
+CREATE TABLE matches(
+	id SERIAL PRIMARY KEY,
+	winner_id INTEGER REFERENCES players,
+	loser_id INTEGER REFERENCES players);
+
+CREATE VIEW standings AS
+	SELECT players.id as player_id, players.name, 
+		(SELECT count(*) FROM matches WHERE matches.winner_id = players.id) AS matches_won, 
+		(SELECT count(*) FROM matches WHERE players.id in (winner_id, loser_id)) as matches_played
+		FROM players
+	GROUP BY players.id
+	ORDER BY matches_won DESC;

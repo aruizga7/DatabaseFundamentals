@@ -6,7 +6,7 @@ Project 2 of the Full Stack Development Nanodegree of Udacity
 
 
 * **Project Tournament Results**: You will develop a database schema to store the game matches between players. You will then write code to query this data and determine the winners of various games.
-* 
+ 
 
 Launch the Vagrant VM
 
